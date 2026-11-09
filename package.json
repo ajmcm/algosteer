@@ -1,0 +1,20 @@
+{
+  "name": "algosteer",
+  "version": "0.1.8",
+  "private": true,
+  "type": "module",
+  "description": "Local explicit-feedback Bayesian/Thompson LinkedIn feed filter",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.3.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

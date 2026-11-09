@@ -1,0 +1,39 @@
+# Dependencies and generated extension build
+node_modules/
+dist/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+.npmrc
+.aws/
+.codex/
+.agents/
+*.pem
+*.key
+
+# OS, editor and runtime files
+.DS_Store
+._*
+Thumbs.db
+.idea/
+.vscode/
+*.log
+*.tmp
+~$*
+__pycache__/
+*.py[cod]
+.venv/
+.model-cache/
+.mpl-cache/
+
+# Rating exports anywhere in the project
+algosteer-labels*.json
+preference-bandit-labels*.json
+
+# Local research and publishing drafts
+/experiment1/
+/GITHUB_SETUP.md
+/PATCH_INSTRUCTIONS.md
+/marketing/

@@ -1,0 +1,54 @@
+/* LinkedIn feed controls */
+.pb-toolbar{display:flex!important;flex-wrap:wrap;align-items:center;gap:6px!important;padding:8px 12px!important;background:#f5f8ff!important;color:#26334d!important;border-left:3px solid #6472e5!important;font-family:system-ui,-apple-system,sans-serif!important;font-size:12px!important;line-height:1.4!important;position:relative!important;z-index:5!important}
+.pb-toolbar button{cursor:pointer!important;border:1px solid #c7d0e5!important;border-radius:6px!important;background:#fff!important;color:#26334d!important;padding:5px 9px!important;font:600 12px system-ui,-apple-system,sans-serif!important;line-height:1.3!important;min-height:26px!important}
+.pb-toolbar button:hover{border-color:#6472e5!important;background:#e8edff!important}
+.pb-toolbar button.pb-active{background:#dae1ff!important;border-color:#6273cd!important}
+.pb-toolbar button[hidden]{display:none!important}
+.pb-toolbar .pb-status{font-size:11px!important;color:#4f5870!important;margin-left:auto!important;max-width:100%!important}
+/* Never put an undecided post in the document flow. */
+.pb-hidden,.pb-pending{display:none!important}
+.pb-loading-boundary{display:flex!important;align-items:center!important;justify-content:center!important;min-height:65vh!important;margin:14px 0 26px!important;padding:20px!important;border:1px solid #c4d0e7!important;border-radius:12px!important;background:#f2f5fe!important;color:#42519b!important;font:600 14px system-ui,-apple-system,sans-serif!important;text-align:center!important;box-sizing:border-box!important}
+.pb-title{font-weight:700!important}
+.pb-error{color:#9b3f38!important}
+
+/* Fixed top-left hidden-post counter and scrollable review dialog */
+.pb-review-root{position:fixed!important;top:0!important;left:0!important;width:0!important;height:0!important;z-index:2147483644!important;pointer-events:none!important;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;color:#1d273b!important;line-height:1.5!important}
+.pb-hidden-counter{pointer-events:auto!important;position:fixed!important;top:76px!important;left:12px!important;z-index:2147483645!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:38px!important;padding:8px 13px!important;max-width:180px!important;background:#333a78!important;border:1px solid #616bcb!important;border-radius:999px!important;color:white!important;font:700 13px system-ui,-apple-system,sans-serif!important;cursor:pointer!important;box-shadow:0 3px 15px #0003!important}
+.pb-hidden-counter:hover,.pb-hidden-counter:focus-visible{background:#505bb0!important;outline:2px solid #fff!important;outline-offset:2px!important}
+.pb-review-overlay{pointer-events:auto!important;position:fixed!important;inset:0!important;z-index:2147483646!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(12,19,37,.65)!important;padding:20px!important;box-sizing:border-box!important}
+.pb-review-overlay[hidden]{display:none!important}
+.pb-review-dialog{box-sizing:border-box!important;width:min(820px,100%)!important;max-height:min(90vh,1000px)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:#f8faff!important;color:#202c43!important;border-radius:16px!important;border:1px solid #c4cde4!important;box-shadow:0 18px 75px #0007!important;font:14px/1.45 system-ui,-apple-system,sans-serif!important}
+.pb-review-dialog *{box-sizing:border-box!important}
+.pb-review-heading-row{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:14px!important;padding:19px 23px 11px!important;border-bottom:1px solid #dce3ef!important}
+.pb-review-heading-row h2{margin:0!important;color:#1c2840!important;font:750 22px/1.25 system-ui,-apple-system,sans-serif!important}
+.pb-review-summary{margin:4px 0 0!important;color:#63718a!important;font-size:12px!important}
+.pb-review-close,.pb-review-actions button{border:1px solid #b9c4dc!important;border-radius:8px!important;background:white!important;color:#23324f!important;padding:8px 12px!important;cursor:pointer!important;font:600 12px/1.3 system-ui,-apple-system,sans-serif!important}
+.pb-review-close:hover,.pb-review-actions button:hover{background:#e5ebff!important}
+.pb-review-actions button:disabled{opacity:.5!important;cursor:wait!important}
+.pb-review-actions button.pb-review-active{background:#dfe5ff!important;border-color:#6373c7!important}
+.pb-review-message{color:#973c38!important;font-size:12px!important;padding:0 23px!important}
+.pb-review-message:empty{display:none!important}
+.pb-review-list{min-height:0!important;flex:1 1 auto!important;overflow:auto!important;overscroll-behavior:contain!important;padding:15px 22px!important;scrollbar-gutter:stable!important}
+.pb-review-entry{display:block!important;background:white!important;border:1px solid #d5deed!important;border-radius:12px!important;overflow:hidden!important;margin:0 0 14px!important;padding:16px!important;color:#24324d!important}
+.pb-review-entry-top{display:flex!important;gap:12px!important;align-items:flex-start!important;justify-content:space-between!important;margin-bottom:10px!important}
+.pb-review-entry-top strong{font-size:14px!important;line-height:1.4!important;color:#1b2d4b!important;overflow-wrap:anywhere!important}
+.pb-review-score{color:#596889!important;font-size:12px!important;white-space:nowrap!important}
+.pb-review-text{white-space:pre-wrap!important;overflow-wrap:anywhere!important;font:14px/1.58 system-ui,-apple-system,sans-serif!important;margin:0 0 15px!important;color:#24324d!important}
+.pb-review-gallery{display:flex!important;gap:10px!important;overflow-x:auto!important;margin-bottom:13px!important}
+.pb-review-gallery img{display:block!important;max-width:min(100%,420px)!important;max-height:360px!important;width:auto!important;height:auto!important;object-fit:contain!important;border-radius:8px!important;background:#f2f4f9!important}
+.pb-review-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important;padding-top:10px!important;border-top:1px solid #e6ebf3!important}
+.pb-review-actions .pb-review-reveal{margin-left:auto!important;color:#374a99!important}
+.pb-review-empty{font:14px/1.6 system-ui,-apple-system,sans-serif!important;color:#63718a!important;text-align:center!important;margin:25px 0!important}
+.pb-review-empty[hidden]{display:none!important}
+.pb-review-footnote{padding:11px 23px 15px!important;border-top:1px solid #dce3ef!important;margin:0!important;font-size:11px!important;color:#63718a!important}
+@media(max-width:680px){.pb-hidden-counter{top:65px!important;left:8px!important;padding:6px 10px!important;min-height:32px!important}.pb-review-overlay{padding:9px!important}.pb-review-dialog{max-height:92vh!important}.pb-review-heading-row{padding:15px!important}.pb-review-list{padding:12px!important}.pb-review-entry{padding:12px!important}}
+@media(prefers-color-scheme:dark){.pb-toolbar{background:#252d3e!important;color:#e8eeff!important}.pb-toolbar button{background:#333b50!important;color:#f5f5ff!important}.pb-toolbar .pb-status{color:#b8c5e4!important}}
+
+/* v0.1.5: a tall staging boundary discourages the LinkedIn lazy-loader from
+   treating a zero-height filtered feed as perpetually at the bottom. */
+.pb-loading-boundary{flex-direction:column!important;gap:14px!important;max-height:none!important}
+.pb-loading-actions{display:flex!important;gap:10px!important;justify-content:center!important;flex-wrap:wrap!important}
+.pb-loading-actions[hidden],.pb-review-pager[hidden]{display:none!important}
+.pb-loading-actions button,.pb-review-pager button{background:white!important;color:#293b85!important;border:1px solid #b6c5ea!important;border-radius:8px!important;padding:8px 13px!important;cursor:pointer!important;font:600 12px system-ui,-apple-system,sans-serif!important}
+.pb-review-pager{display:flex!important;justify-content:space-between!important;padding:10px 23px!important;border-top:1px solid #dce3ef!important}
+.pb-review-pager button:disabled{opacity:.45!important;cursor:default!important}

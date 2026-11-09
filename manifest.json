@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "AlgoSteer (Local AI Preview)",
+  "version": "0.1.8",
+  "description": "An explicit-feedback Bayesian/Thompson feed filter. On-device embeddings; no account or API key.",
+  "minimum_chrome_version": "120",
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://www.linkedin.com/*",
+    "https://huggingface.co/*",
+    "https://*.huggingface.co/*",
+    "https://*.hf.co/*",
+    "https://*.xethub.hf.co/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "AlgoSteer",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.linkedin.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  }
+}
