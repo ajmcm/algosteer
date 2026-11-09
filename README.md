@@ -91,21 +91,21 @@ Post text → frozen encoder → normalized embedding → 512 RFFs + intercept
 Learning uses explicit ratings only. Scrolling, dwell time, clicking, expanding
 and leaving a post unrated do not generate training labels.
 
-### Embedding options
+### Embedding model
 
-| Option | Runtime | Notes |
-|---|---|---|
-| MiniLM (default) | Quantized ONNX / WASM CPU | Smaller download, 384-dimensional embeddings |
-| EmbeddingGemma 2 | Quantized ONNX / WebGPU | Text encoder only, 768-dimensional embeddings; requires WebGPU |
+AlgoSteer uses **EmbeddingGemma 2**, a frozen text encoder with 768-dimensional
+embeddings, quantized ONNX weights and local WebGPU inference. It downloads the
+text encoder only, without unused vision or audio weights. A WebGPU-compatible
+Chrome device is required.
 
-Model assets come from the configured Hugging Face repositories:
-[Xenova/all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2) and
+Model assets come from
 [onnx-community/embeddinggemma-2-ONNX](https://huggingface.co/onnx-community/embeddinggemma-2-ONNX).
-Their model cards specify the applicable model terms.
+The model card specifies the applicable model terms.
 
-Choose an encoder before collecting ratings. Switching encoders after ratings
-requires clearing labels because their embedding spaces differ. Exported text
-could support a future re-embedding tool, but no importer is currently provided.
+Saved ratings from an older encoder are retained and re-embedded locally when
+next scoring or rating a post. The replacement dataset is saved only after all
+embeddings succeed. A failed upgrade leaves the stored dataset intact and can
+be retried; there is no need to clear ratings.
 
 ## Using the beta
 
@@ -160,8 +160,8 @@ cannot establish that LinkedIn's current markup works on every account.
   page console for `[AlgoSteer]` messages. LinkedIn DOM changes can break extraction.
 - **Missing inference backend:** rebuild and reload. The build must include both
   ONNX Runtime loader modules and WASM binaries in `dist/wasm/`.
-- **WebGPU errors:** confirm WebGPU support before selecting Gemma. Choose MiniLM
-  before collecting ratings if your device cannot run the Gemma encoder.
+- **WebGPU errors:** confirm WebGPU is enabled and available in Chrome. The
+  embedding model requires a compatible GPU/device; there is no CPU fallback.
 - **First rating is slow:** model downloads and encoder startup can take time.
 - Text-only scoring ignores attached images. Small or selectively rated datasets
   can yield unreliable scores and uncertainty estimates. The 512-feature

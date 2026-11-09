@@ -5,6 +5,7 @@ const root=resolve(import.meta.dirname,'..'), dist=join(root,'dist');
 await rm(dist,{recursive:true,force:true}); await mkdir(dist,{recursive:true});
 for(const filename of ['manifest.json'])await copyFile(join(root,filename),join(dist,filename));
 for(const filename of ['offscreen.html','popup.html','popup.css','content.css'])await copyFile(join(root,'src',filename),join(dist,filename));
+await cp(join(root,'src','icons'),join(dist,'icons'),{recursive:true});
 for(const [name, entry] of Object.entries({
  background:'src/background.js', offscreen:'src/offscreen.js',
  content:'src/content.js', popup:'src/popup.js'

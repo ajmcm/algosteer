@@ -7,15 +7,14 @@
  */
 export const FEATURE_DIM = 512;
 export const DEFAULTS = Object.freeze({
-  model: 'mini',
+  model: 'gemma',
   threshold: 0.38,
   exploration: 0.08,
   enabled: true,
   driftStdPerWeek: 0.12, // Weight-space random-walk SD / sqrt(week).
 });
 export const MODELS = Object.freeze({
-  mini: { id: 'Xenova/all-MiniLM-L6-v2', name: 'MiniLM (fast, 23 MB)', dtype: 'q8', device: 'wasm', maxChars: 3400 },
-  gemma: { id: 'onnx-community/embeddinggemma-2-ONNX', name: 'EmbeddingGemma 2 (quality, ~175 MB)', dtype: 'q4', device: 'webgpu', maxChars: 6200 },
+  gemma: { id: 'onnx-community/embeddinggemma-2-ONNX', name: 'EmbeddingGemma 2 (quality, ~175 MB)', dtype: 'q4', device: 'webgpu', embeddingDim: 768, maxChars: 6200 },
 });
 
 export function sigmoid(x) {

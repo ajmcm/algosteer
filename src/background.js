@@ -5,17 +5,43 @@ const memoryCache=new Map();
 const MAX_CACHE=250;
 let creatingDocument=null, opQueue=Promise.resolve();
 let status='idle';
+let embeddingUpgradeNeeded=false;
 
 async function initialize(){
   if(!initialized) initialized=(async()=>{
     const values=await chrome.storage.local.get([SETTINGS_KEY,LABELS_KEY]);
     settings={...DEFAULTS,...(values[SETTINGS_KEY]||{})};
     labels=Array.isArray(values[LABELS_KEY])?values[LABELS_KEY]:[];
-    rebuild();
+    embeddingUpgradeNeeded=labels.length>0 && (!MODELS[settings.model] || labels.some(r=>
+      !Array.isArray(r.embedding) || r.embedding.length!==MODELS[DEFAULTS.model].embeddingDim));
+    settings.model=DEFAULTS.model;
+    if(embeddingUpgradeNeeded) status='Saved ratings will be upgraded to EmbeddingGemma 2 when you next score or rate a post.';
+    else rebuild();
   })().catch(e=>{initialized=null;throw e});
   return initialized;
 }
+async function upgradeEmbeddings(){
+  if(!embeddingUpgradeNeeded)return;
+  // Keep the original records and stored settings intact until every inference succeeds.
+  const upgraded=[];
+  try {
+    for(const row of labels){
+      const embedding=await embed(normalizeText(row.text));
+      if(embedding.length!==MODELS[DEFAULTS.model].embeddingDim)throw new Error('Unexpected embedding dimension');
+      upgraded.push({...row,embedding});
+    }
+    await chrome.storage.local.set({[LABELS_KEY]:upgraded,[SETTINGS_KEY]:settings});
+    labels=upgraded;
+    embeddingUpgradeNeeded=false;
+    rebuild();
+    status='ready';
+  }catch(e){
+    status=`Saved ratings are unchanged; embedding upgrade can be retried. ${e.message}`;
+    throw new Error(status);
+  }
+}
 function rebuild(){
+  if(embeddingUpgradeNeeded){model=null;embeddingDim=0;return;}
   const valid=labels.filter(r=>r && Array.isArray(r.embedding) && r.embedding.length && (r.label===0||r.label===1));
   embeddingDim=valid.length?valid[0].embedding.length:0;
   const matching=valid.filter(r=>r.embedding.length===embeddingDim);
@@ -126,6 +152,8 @@ async function changeSettings(delta){
 }
 async function reset(){
   labels=[];memoryCache.clear();model=null;embeddingDim=0;
+  embeddingUpgradeNeeded=false;
+  status='idle';
   await chrome.storage.local.set({[LABELS_KEY]:[]});
   return {settings,counts:counts(),status};
 }
@@ -139,6 +167,7 @@ async function handle(msg){
   if(type==='SCORE' || type==='LABEL'){
     const text=normalizeText(msg.text);
     if(text.length<30)throw new Error('Post text too short');
+    await upgradeEmbeddings();
     const id=fnv1a(text); // Stable across refresh; no site identifiers or personal account data.
     const result=type==='SCORE'?await score(text,id):await labelPost(text,id,msg.label);
     return {id,...result};

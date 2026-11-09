@@ -8,7 +8,6 @@ function show(r){
  $('positive').textContent=c.positive; $('negative').textContent=c.negative;
  $('ready').textContent=c.ready?'Active':'Training';
  $('enabled').checked=s.enabled;
- $('model').value=s.model;
  $('threshold').value=Math.round(s.threshold*100);
  $('exploration').value=Math.round(s.exploration*100);
  $('drift').value=String(s.driftStdPerWeek??0.12);
@@ -18,7 +17,7 @@ function show(r){
 $('threshold').addEventListener('input',()=>{$('threshold-value').textContent=$('threshold').value+'%';});
 $('exploration').addEventListener('input',()=>{$('exploration-value').textContent=$('exploration').value+'%';});
 $('save').addEventListener('click',async()=>{
- try{const r=await request('SET_SETTINGS',{settings:{enabled:$('enabled').checked,model:$('model').value,threshold:Number($('threshold').value)/100,exploration:Number($('exploration').value)/100,driftStdPerWeek:Number($('drift').value)}});show(r);say('Saved. Reload the LinkedIn tab to apply the new policy.');}
+ try{const r=await request('SET_SETTINGS',{settings:{enabled:$('enabled').checked,threshold:Number($('threshold').value)/100,exploration:Number($('exploration').value)/100,driftStdPerWeek:Number($('drift').value)}});show(r);say('Saved. Reload the LinkedIn tab to apply the new policy.');}
  catch(e){say('Error: '+e.message);}
 });
 $('export').addEventListener('click',async()=>{

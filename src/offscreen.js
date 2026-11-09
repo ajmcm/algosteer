@@ -1,6 +1,6 @@
 // A local Chrome extension document used for model inference, never for scraping.
 // All ONNX Runtime executable assets are bundled locally; only WEIGHTS are fetched.
-import { pipeline, env, AutoConfig, AutoModel, AutoTokenizer } from '@huggingface/transformers';
+import { env, AutoConfig, AutoModel, AutoTokenizer } from '@huggingface/transformers';
 import { MODELS } from './engine.mjs';
 
 env.allowRemoteModels = true;
@@ -26,25 +26,21 @@ async function getEncoder(key) {
   if (!encoders.has(key)) {
     const spec = MODELS[key];
     const loading = (async () => {
-      if (key === 'gemma') {
-        if (!navigator.gpu) throw new Error('EmbeddingGemma 2 requires WebGPU. Select MiniLM in extension settings.');
-        // IMPORTANT: do not download the unused vision and audio weights.
-        // Model card recommends this manual configuration for text only.
-        const config = await AutoConfig.from_pretrained(spec.id);
-        config.vision_config = null;
-        config.audio_config = null;
-        const [model, tokenizer] = await Promise.all([
-          AutoModel.from_pretrained(spec.id, { config, device:'webgpu', dtype:'q4', progress_callback:reportProgress }),
-          AutoTokenizer.from_pretrained(spec.id),
-        ]);
-        return async text => {
-          const inputs=await tokenizer(`task: classification | query: ${text}`, { truncation: true, max_length: 1600 });
-          const outputs=await model(inputs);
-          return outputs.sentence_embedding.data;
-        };
-      }
-      const pipe = await pipeline('feature-extraction', spec.id, {device:'wasm',dtype:'q8',progress_callback:reportProgress});
-      return async text => (await pipe(text, { pooling:'mean',normalize:true, truncation:true, max_length:256 })).data;
+      if (!navigator.gpu) throw new Error('EmbeddingGemma 2 requires WebGPU. Enable WebGPU or use a compatible Chrome device.');
+      // IMPORTANT: do not download the unused vision and audio weights.
+      // Model card recommends this manual configuration for text only.
+      const config = await AutoConfig.from_pretrained(spec.id);
+      config.vision_config = null;
+      config.audio_config = null;
+      const [model, tokenizer] = await Promise.all([
+        AutoModel.from_pretrained(spec.id, { config, device:'webgpu', dtype:'q4', progress_callback:reportProgress }),
+        AutoTokenizer.from_pretrained(spec.id),
+      ]);
+      return async text => {
+        const inputs=await tokenizer(`task: classification | query: ${text}`, { truncation: true, max_length: 1600 });
+        const outputs=await model(inputs);
+        return outputs.sentence_embedding.data;
+      };
     })();
     encoders.set(key,loading);
     loading.catch(()=>encoders.delete(key));
