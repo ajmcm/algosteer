@@ -4,6 +4,28 @@ A Chrome extension that adds a personal preference layer to your LinkedIn feed.
 Click **More** or **Less** on posts; AlgoSteer learns which posts to show or hide.
 Inference and preference learning run locally on your device.
 
+## Why I built it
+
+I wanted to spend less time sifting through crap and more time finding posts
+that were interesting or genuine. AI slop, lazy posts and recycled takes take
+up attention I'd rather give to something thoughtful, useful or unexpected.
+I wanted a feed that could learn my particular interests from my own feedback.
+
+AlgoSteer started as a question: could I give the user more control over their
+own algorithm? The platform still chooses which posts reach the feed, but a
+personal preference layer gives me a say in what gets my attention once it's
+there.
+
+I also wanted room to be surprised. A filter that keeps narrowing around what
+I've already liked could shut out new subjects and perspectives. That's why
+AlgoSteer includes exploration: uncertain posts get a chance to challenge its
+current view of my tastes. It can only explore within the feed it receives,
+so this is a design goal rather than a guarantee of escaping a bubble.
+
+Finally, my interests change. I wanted the model to leave room for that too,
+using time-aware uncertainty and fresh feedback so earlier ratings don't
+become a permanent definition of what I want to see.
+
 ## Install from source
 
 Requires Node.js 22 or newer, npm, and Chrome 120 or newer. Internet access is
