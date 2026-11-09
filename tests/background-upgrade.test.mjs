@@ -71,3 +71,27 @@ test('new installation uses the sole supported encoder',async(t)=>{
  const result=await new Promise(resolve=>listener({target:'background',type:'STATUS'},{},resolve));
  assert.equal(result.ok,true);assert.equal(result.settings.model,'gemma');assert.equal(result.counts.total,0);
 });
+
+test('setup status stays readable while a rating is waiting for inference, then finishes',async(t)=>{
+ let listener,finishEmbedding,embeddingStarted;
+ const started=new Promise(resolve=>{embeddingStarted=resolve;});
+ const previousChrome=globalThis.chrome;
+ t.after(()=>{if(previousChrome===undefined)delete globalThis.chrome;else globalThis.chrome=previousChrome;});
+ globalThis.chrome={storage:{local:{get:async()=>({}),set:async()=>{}}},runtime:{
+  getURL:path=>path,getContexts:async()=>[{}],onMessage:{addListener:fn=>{listener=fn;}},sendMessage:async()=>{
+   embeddingStarted();return new Promise(resolve=>{finishEmbedding=resolve;});
+  }
+ }};
+ await import('../src/background.js?live-setup-test');
+ const request=msg=>new Promise(resolve=>listener({target:'background',...msg},{},resolve));
+ const pending=request({type:'LABEL',text:'The first post rated during local model setup with enough text.',label:1});
+ await started;
+ let status=await request({type:'STATUS'});assert.equal(status.inference.phase,'loading');assert.match(status.inference.message,/175 MB/);
+ await request({type:'MODEL_PROGRESS',inference:{phase:'downloading',message:'Downloading current file: 35%',progress:35}});
+ status=await request({type:'STATUS'});assert.equal(status.inference.progress,35);assert.equal(status.counts.total,0);
+ await request({type:'MODEL_PROGRESS',inference:{phase:'preparing',message:'Preparing model…'}});
+ status=await request({type:'STATUS'});assert.equal(status.inference.phase,'preparing');
+ finishEmbedding({ok:true,embedding:Array.from({length:768},(_,j)=>j===0?1:0)});
+ assert.equal((await pending).ok,true);
+ status=await request({type:'STATUS'});assert.equal(status.inference.phase,'ready');assert.equal(status.counts.total,1);
+});

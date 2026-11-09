@@ -1,3 +1,4 @@
+import {activeInferenceMessage} from './model-status.mjs';
 // LinkedIn's DOM changes often. This is a best-effort, user-controlled filter.
 // v0.1.5: reduce DOM scanning and bound long sessions to avoid infinite-feed
 // runaway when hundreds of zero-height posts are hidden.
@@ -25,6 +26,7 @@
   let review = null;
   let filterReady = false;
   let statusKnown = false;
+  let lastInference=null;
   let activeJobs = 0;
   const MAX_IN_FLIGHT = 2;
   let boundary = null;
@@ -444,6 +446,8 @@
     });
     rehide.hidden = true;
     const status = document.createElement('span'); status.className = 'pb-status';
+    status.setAttribute('role','status');
+    status.setAttribute('aria-live','polite');
     status.textContent = 'Scoring locally…';
     toolbar.append(title, more, less, rehide, status);
     card.insertBefore(toolbar, card.firstChild);
@@ -461,10 +465,21 @@
       state.busy = true;
       ++state.revision; // Invalidates any SCORE that started before the rating.
       more.disabled = less.disabled = true;
-      status.textContent = 'Saving label…';
+      status.classList.remove('pb-error');
+      status.textContent = activeInferenceMessage(lastInference);
+      let polling=false;
+      const progressTimer=setInterval(async()=>{
+        if(polling || !state.busy)return;
+        polling=true;
+        try {
+          const data=await request('STATUS');
+          if(state.busy){lastInference=data.inference;status.textContent=activeInferenceMessage(lastInference);}
+        }catch{}finally{polling=false;}
+      },750);
       refreshReview();
       try {
         const response = await request('LABEL', { text: state.text, label });
+        lastInference={phase:'ready',message:'Local model ready.'};
         state.manualReveal = false;
         state.pending = false;
         state.readyResponse = null;
@@ -481,6 +496,7 @@
         status.classList.add('pb-error');
         if (review?.open) review.message.textContent = `Could not save rating: ${e.message}`;
       } finally {
+        clearInterval(progressTimer);
         state.busy = false;
         more.disabled = less.disabled = false;
         refreshReview();
@@ -497,8 +513,8 @@
     state.less.classList.toggle('pb-active', response.label === 0);
     state.status.classList.remove('pb-error');
     const pct = p => `${Math.round(p * 100)}%`;
-    if (response.reason === 'rated-more' && response.probability == null) state.status.textContent = 'Rated More';
-    else if (response.reason === 'rated-less' && response.probability == null) state.status.textContent = 'Rated Less';
+    if (response.reason === 'rated-more' && response.probability == null) state.status.textContent = 'Rating saved • More';
+    else if (response.reason === 'rated-less' && response.probability == null) state.status.textContent = 'Rating saved • Less';
     else if (response.reason === 'training') state.status.textContent = `Learning • ${response.total || 0} labels (needs ≥12, ≥3 each)`;
     else if (response.reason === 'paused') state.status.textContent = 'Paused';
     else if (response.probability != null) {
@@ -587,6 +603,7 @@
   mutation.observe(document.documentElement, { childList: true, subtree: true });
   void request('STATUS').then(data => {
     statusKnown = true;
+    lastInference=data.inference;
     filterReady = !!data.settings?.enabled && !!data.counts?.ready;
     schedule();
     queueMicrotask(activateScoring);

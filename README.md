@@ -47,6 +47,11 @@ In Chrome:
 3. Open or refresh the LinkedIn feed.
 4. Use **More** and **Less** to provide ratings. Open the extension popup for settings.
 
+The first rating sets up the local model (~175 MB download) and can take a few
+minutes. The post toolbar and popup show download progress and model preparation.
+Percentages refer to the current asset, rather than the whole download. WebGPU
+is required, and post text stays on your device.
+
 On macOS, `build.command` can also install dependencies, test and build.
 The source repository excludes `dist/`; every checkout builds its own extension.
 

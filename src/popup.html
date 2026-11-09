@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="popup.css"><title>AlgoSteer</title></head><body>
 <main><header><span class="eyebrow">LOCAL · EXPLICIT FEEDBACK</span><h1><img class="brand-icon" src="icons/icon-32.png" width="28" height="28" alt="">AlgoSteer <small>v0.1.8</small></h1><p>Bayesian taste model with capped Thompson exploration.</p></header>
 <section class="counts"><div><strong id="positive">—</strong><span>More</span></div><div><strong id="negative">—</strong><span>Less</span></div><div><strong id="ready">—</strong><span>Filter</span></div></section>
-<section><label class="check"><input id="enabled" type="checkbox"> Enable filtering</label><p><strong>EmbeddingGemma 2</strong> · WebGPU · ~175 MB</p><p class="help">The text encoder downloads once from Hugging Face. Requires WebGPU. No inference API or API key.</p>
+<section><label class="check"><input id="enabled" type="checkbox"> Enable filtering</label><p><strong>EmbeddingGemma 2</strong> · WebGPU · ~175 MB</p><p class="help">Your first More/Less rating sets up the local model (~175 MB download). Allow a few minutes. Requires WebGPU; posts are processed on your device. No inference API or API key.</p>
 <label for="threshold">Hide when predicted like probability is below <strong id="threshold-value">38%</strong></label><input id="threshold" type="range" min="10" max="85" step="1" value="38">
 <label for="exploration">Max Thompson exploration chance <strong id="exploration-value">8%</strong></label><input id="exploration" type="range" min="0" max="25" step="1" value="8"><p class="help">Below-threshold posts get a small chance to be tested against a sampled Bayesian classifier. Exploring only shows a post; it never generates a label.</p>
 <label for="drift">How quickly might your preferences change?</label>
@@ -12,5 +12,5 @@
 <option value="0.24">Fast — more exploratory with time</option>
 </select>
 <p class="help">Time-aware Bayesian weights: older ratings stay saved, but uncertainty increases between ratings. This is the weekly random-walk weight standard deviation, not a percentage of posts. Scores change with elapsed time.</p>
-</section><section class="buttons"><button id="save">Save settings</button><button id="export" class="secondary">Export labelled text</button><button id="reset" class="danger">Clear all labels</button></section><p id="status" role="status">Loading…</p><p class="foot">Experimental; LinkedIn's markup may change. Disabled filtering never hides posts.</p></main>
+</section><p id="model-status" role="status" aria-live="polite"></p><section class="buttons"><button id="save">Save settings</button><button id="export" class="secondary">Export labelled text</button><button id="reset" class="danger">Clear all labels</button></section><p id="status" role="status">Loading…</p><p class="foot">Experimental; LinkedIn's markup may change. Disabled filtering never hides posts.</p></main>
 <script src="popup.js"></script></body></html>

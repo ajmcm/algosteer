@@ -1,3 +1,4 @@
+import {SETUP_MESSAGE} from './model-status.mjs';
 import { BayesianRFF, DEFAULTS, MODELS, decide, fnv1a, normalizeText } from './engine.mjs';
 const SETTINGS_KEY='settings-v1', LABELS_KEY='labels-v1';
 let initialized=null, settings={...DEFAULTS}, labels=[], model=null, embeddingDim=0;
@@ -5,6 +6,7 @@ const memoryCache=new Map();
 const MAX_CACHE=250;
 let creatingDocument=null, opQueue=Promise.resolve();
 let status='idle';
+let inference={phase:'idle',message:''};
 let embeddingUpgradeNeeded=false;
 
 async function initialize(){
@@ -71,7 +73,10 @@ const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function embed(text){
   const key=fnv1a(settings.model+'|'+text);
   if(memoryCache.has(key))return memoryCache.get(key);
-  await ensureOffscreen();
+  if(inference.phase==='idle'||inference.phase==='error')inference={phase:'loading',message:SETUP_MESSAGE};
+  try{await ensureOffscreen();}catch(e){
+    status=`Error: ${e.message}`;inference={phase:'error',message:e.message};throw e;
+  }
   status=`Loading ${MODELS[settings.model].name} or computing an embedding`;
   let result;
   // The offscreen document may still be initializing its JS module.
@@ -83,12 +88,13 @@ async function embed(text){
       break;
     }catch(e){
       if(attempt===23 || !/receiving end|not ready|message port closed/i.test(String(e.message))) {
-        status=`Error: ${e.message}`;throw e;
+        status=`Error: ${e.message}`;inference={phase:'error',message:e.message};throw e;
       }
       await sleep(250);
     }
   }
   status='ready';
+  inference={phase:'ready',message:'Local model ready.'};
   remember(key,result.embedding);
   return result.embedding;
 }
@@ -160,7 +166,7 @@ async function reset(){
 async function handle(msg){
   await initialize();
   const type=msg.type;
-  if(type==='STATUS')return {settings,counts:counts(),status};
+  if(type==='STATUS')return {settings,counts:counts(),status,inference};
   if(type==='SET_SETTINGS')return changeSettings(msg.settings||{});
   if(type==='EXPORT')return {version:1,settings,labels:labels.map(({id,text,label,updatedAt})=>({id,text,label,updatedAt}))};
   if(type==='RESET')return reset();
@@ -176,7 +182,11 @@ async function handle(msg){
 }
 chrome.runtime.onMessage.addListener((msg,_sender,sendResponse)=>{
   if(msg?.target!=='background')return;
-  if(msg.type==='MODEL_PROGRESS'){ status=msg.detail||'Downloading model';sendResponse({ok:true});return; }
+  if(msg.type==='MODEL_PROGRESS'){
+    if(msg.inference){inference=msg.inference;status=inference.message;}
+    else status=msg.detail||'Downloading model';
+    sendResponse({ok:true});return;
+  }
   if(msg.type==='STATUS'){handle(msg).then(data=>sendResponse({ok:true,...data}),err=>sendResponse({ok:false,error:err.message}));return true;}
   // Serialize message operations, so edits cannot race with scoring/rebuilds.
   opQueue=opQueue.catch(()=>{}).then(()=>handle(msg));
